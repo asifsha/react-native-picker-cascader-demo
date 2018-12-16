@@ -1,24 +1,45 @@
 import React, { Component } from 'react';
-import { Modal, Text, TouchableHighlight, View, Alert,
-   Button, SectionList, StyleSheet, FlatList } from 'react-native';
+import {
+  Modal, Text, TouchableHighlight, View, Alert,
+  Button, SectionList, StyleSheet, FlatList
+} from 'react-native';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
 
 export class PickerCascader extends Component {
   state = {
     modalVisible: false,
-    visible:false
+    visible: false,
+    selecteditems: '',
+    originalData: this.props.data,
+    data: this.props.data,
+    currentNode:0
   };
 
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
   }
 
-  
-  
+  _pressItem(item) {
+    console.log(item.key);
+    var lastState = this.state.selecteditems;
+    var curNode=this.state.currentNode;
+    var data=[];
+    console.log(lastState.length);
+    if (lastState.length === 0)
+      lastState = item.text;
+    else
+      lastState += '> ' + item.text;
+    //if(curNode===0)
+    //data=this.state.originalData.
+
+    
+      this.setState({ selecteditems: lastState });
+  }
+
 
   render() {
-    
-      
+
+
     return (
       <View style={{ marginTop: 22 }}>
         <Button
@@ -28,27 +49,30 @@ export class PickerCascader extends Component {
           }}
         />
         <Dialog
-        height={0.5}
+          height={0.5}
+          width={0.75}
           visible={this.state.visible}
           onTouchOutside={() => {
             this.setState({ visible: false });
           }}
         >
           <DialogContent>
-            <Text>Custom Content picker</Text>
             <FlatList
-          data={[
-            {key: 'Devin'},
-            {key: 'Jackson'},
-            {key: 'James'},
-            {key: 'Joel'},
-            {key: 'John'},
-            {key: 'Jillian'},
-            {key: 'Jimmy'},
-            {key: 'Julie'},
-          ]}
-          renderItem={({item}) => <Text style={styles.item}>{item.key}</Text>}
-        />
+              data={this.state.data}
+
+              renderItem={({ item }) => (
+
+                <View>
+                  <TouchableHighlight onPress={() => this._pressItem(item)}>
+                    <View>
+                      <Text style={styles.item}>{item.text + (item.children !== undefined ? ' >' : '')}</Text>
+                    </View>
+                  </TouchableHighlight>
+                </View>
+              )
+              }
+            />
+            <Text>{this.state.selecteditems}</Text>
             {/* <SectionList
           sections={[
             {title: 'D', data: ['Devin']},
@@ -66,8 +90,8 @@ export class PickerCascader extends Component {
 }
 const styles = StyleSheet.create({
   container: {
-   flex: 1,
-   paddingTop: 22
+    flex: 1,
+    paddingTop: 22
   },
   sectionHeader: {
     paddingTop: 2,
