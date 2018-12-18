@@ -29,11 +29,16 @@ export class PickerCascader extends Component {
       lastState = item.text;
     else
       lastState += '> ' + item.text;
+
+      data=item.children;
     //if(curNode===0)
     //data=this.state.originalData.
 
     
-      this.setState({ selecteditems: lastState });
+      this.setState({
+         selecteditems: lastState,
+         data:data
+       });
   }
 
 
