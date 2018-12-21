@@ -4,16 +4,17 @@ import {
   Button, SectionList, StyleSheet, FlatList
 } from 'react-native';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
+import check from './check';
 
 export class PickerCascader extends Component {
   state = {
     modalVisible: false,
     visible: false,
-    selecteditems: '',
+    selecteditems: [],
     originalData: this.props.data,
     data: this.props.data,
-    currentNode:0
-  };
+    currentNode: 0,
+    };
 
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
@@ -21,29 +22,39 @@ export class PickerCascader extends Component {
 
   _pressItem(item) {
     console.log(item.key);
-    var lastState = this.state.selecteditems;
-    var curNode=this.state.currentNode;
-    var data=[];
-    console.log(lastState.length);
-    if (lastState.length === 0)
-      lastState = item.text;
-    else
-      lastState += '> ' + item.text;
+    if (item.children === undefined) {
+      this.setState({ visible: false });
+      return;
+    }
+    var lastselectedItems = this.state.selecteditems;
+    var curNode = this.state.currentNode;
+    var childData = [];
+    //console.log(lastState.length);
+    // if (lastselectedItems.length === 0)
+    // lastselectedItems = item.text;
+    // else
+    // lastselectedItems += '> ' + item.text;
+    //onsole.log(item.children);
+    childData = item.children;
+    lastselectedItems.push(item);
 
-      data=item.children;
+console.log(lastselectedItems);
+
+    //var obj = new JSONObject(item.children.toString());
+    //childData=obj.getJSONArray();
     //if(curNode===0)
     //data=this.state.originalData.
 
-    
-      this.setState({
-         selecteditems: lastState,
-         data:data
-       });
+    //console.log(childData);
+    this.setState({
+      selecteditems: lastselectedItems,
+      data: childData
+    });
   }
 
 
   render() {
-
+    // console.log(this.state.data);
 
     return (
       <View style={{ marginTop: 22 }}>
@@ -58,7 +69,7 @@ export class PickerCascader extends Component {
           width={0.75}
           visible={this.state.visible}
           onTouchOutside={() => {
-            this.setState({ visible: false });
+            this.setState({ visible: true });
           }}
         >
           <DialogContent>
@@ -76,17 +87,47 @@ export class PickerCascader extends Component {
                 </View>
               )
               }
+              ItemSeparatorComponent={() => {
+                return (
+                  <View
+                    style={{
+                      height: 2,
+                      width: 0.7,
+                      backgroundColor: "#CED0CE",
+
+                    }}
+                  />
+                );
+              }}
             />
-            <Text>{this.state.selecteditems}</Text>
-            {/* <SectionList
-          sections={[
-            {title: 'D', data: ['Devin']},
-            {title: 'J', data: ['Jackson', 'James', 'Jillian', 'Jimmy', 'Joel', 'John', 'Julie']},
-          ]}
-          renderItem={({item}) => <Text style={styles.item}>{item}</Text>}
-          renderSectionHeader={({section}) => <Text style={styles.sectionHeader}>{section.title}</Text>}
-          keyExtractor={(item, index) => index}
-        /> */}
+            <View >
+              <FlatList
+                data={this.state.selecteditems}
+                horizontal={true}
+
+                renderItem={({ item }) => (
+                  <View>
+                    <TouchableHighlight onPress={() => this._pressItem(item)}>
+                      <View>
+                        <Text style={styles.item}>{item.text}</Text>
+                      </View>
+                    </TouchableHighlight>
+                  </View>
+                )
+
+                }
+
+                ItemSeparatorComponent={() => {
+                  return (
+                    <View>
+                      <Text>:</Text>
+                    </View>
+                  );
+                }}
+
+              />
+            </View>
+
           </DialogContent>
         </Dialog>
       </View>
@@ -112,4 +153,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     height: 44,
   },
+  bottomContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    paddingBottom: check.isAndroid ? 14 : 0
+  }
 })

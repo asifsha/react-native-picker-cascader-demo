@@ -20,13 +20,14 @@ export default class App extends React.Component {
           <Picker.Item label="JavaScript" value="js" />
         </Picker>
         <PickerCascader data={[
-          { key: '1', text: 'Devin', children: { key: '11', text: 'Tom' } },
+          { key: '1', text: 'Devin', children: [{ key: '11', text: 'Tom' }] },
           {
             key: '2', text: 'David',
-            children: {
-              key: '21', text: 'Tim',
-              children: { key: '211', text: 'John' }, children: { key: '2111', text: 'Jillian' }
-            }
+            children: [
+              {key: '22', text: 'Tim'},
+              {key: '21', text: 'Tim',
+              children: [{ key: '211', text: 'John' }], children: [{ key: '2111', text: 'Jillian' }] }
+            ]
           },
           { key: '3', text: 'James' },
           { key: '4', text: 'Joel' },
