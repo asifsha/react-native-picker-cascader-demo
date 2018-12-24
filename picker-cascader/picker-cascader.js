@@ -14,14 +14,74 @@ export class PickerCascader extends Component {
     originalData: this.props.data,
     data: this.props.data,
     currentNode: 0,
-    };
+  };
 
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
   }
 
-  _pressItem(item) {
+  findParentItem(item) {
+    return function (data) {
+      console.log('data: ' + data.key);
+      console.log('key: ' + item.key);
+      return data.key == item.key;
+    }
+  }
+  _pressParentItem(item) {
+    //var p=this.state.originalData.find(this.findParentItem(item));
+    console.log('search starts...');
     console.log(item.key);
+    let p = this.findByKey(this.state.originalData, item.key);
+    //if(p!==undefined)
+    console.log('search ends...');
+    console.log('value of p:' + p.text);
+
+  }
+
+  //findKeyInDatasource()
+  //{
+
+  //let findDeep = f
+  // findDeep(data, key) {
+  //   let that = this;
+  //   return data.find(function(e) {
+  //     if(e.key == key) {
+  //       console.log(e)
+  //       return true;
+  //     }
+  //     else if(e.children) return that.findDeep(e.children, key)
+  //   })
+  // }
+
+  // findByKey(data, key) {
+  //   for (var i = 0; i < data.length; i++) {
+  //     console.log('data :'+data[i].key);
+  //     if (data[i].key == key) {
+  //       return data[i];
+  //     } else if (data[i].children && data[i].children.length) {
+  //       this.findByKey(data[i].children, key);
+  //     }
+  //   }
+  // }
+
+ findByKey(data, key) {
+  let that = this;
+    function iter(a) {
+        if (a.key === key) {
+            result = a;
+            return true;
+        }
+        return Array.isArray(a.children) && a.children.some(iter);
+    }
+
+    var result;
+    data.some(iter);
+    return result;
+}
+
+  //}
+  _pressItem(item) {
+    //console.log(item.key);
     if (item.children === undefined) {
       this.setState({ visible: false });
       return;
@@ -38,7 +98,7 @@ export class PickerCascader extends Component {
     childData = item.children;
     lastselectedItems.push(item);
 
-console.log(lastselectedItems);
+    console.log(lastselectedItems);
 
     //var obj = new JSONObject(item.children.toString());
     //childData=obj.getJSONArray();
@@ -52,9 +112,44 @@ console.log(lastselectedItems);
     });
   }
 
+  renderSeparator = () => {
+    return (
+      <View
+        style={{
+          paddingLeft: 3,
+          paddingRight: 3
+        }}
+      >
+        <View
+          style={{
+            height: 20,
+            width: 3,
+
+            backgroundColor: '#636870'
+          }}
+        />
+      </View>
+    )
+  }
+
+  _renderItem = ({ item, index }) => (
+    <View style={{ flexDirection: 'row' }}>
+      <TouchableHighlight onPress={() => this._pressParentItem(item)}>
+        <View>
+          <Text>
+            {item.text}
+          </Text>
+        </View>
+      </TouchableHighlight>
+      {(index !== this.state.selecteditems.length - 1) && this.renderSeparator()}
+
+    </View>
+  )
 
   render() {
     // console.log(this.state.data);
+
+
 
     return (
       <View style={{ marginTop: 22 }}>
@@ -87,45 +182,15 @@ console.log(lastselectedItems);
                 </View>
               )
               }
-              ItemSeparatorComponent={() => {
-                return (
-                  <View
-                    style={{
-                      height: 2,
-                      width: 0.7,
-                      backgroundColor: "#CED0CE",
-
-                    }}
-                  />
-                );
-              }}
             />
             <View >
               <FlatList
                 data={this.state.selecteditems}
                 horizontal={true}
-
-                renderItem={({ item }) => (
-                  <View>
-                    <TouchableHighlight onPress={() => this._pressItem(item)}>
-                      <View>
-                        <Text style={styles.item}>{item.text}</Text>
-                      </View>
-                    </TouchableHighlight>
-                  </View>
-                )
-
-                }
-
-                ItemSeparatorComponent={() => {
-                  return (
-                    <View>
-                      <Text>:</Text>
-                    </View>
-                  );
-                }}
-
+                renderItem={this._renderItem}
+                listkey={(item, index) => item.key}
               />
+
             </View>
 
           </DialogContent>
