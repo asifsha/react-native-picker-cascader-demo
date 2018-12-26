@@ -14,6 +14,7 @@ export class PickerCascader extends Component {
     originalData: this.props.data,
     data: this.props.data,
     currentNode: 0,
+    history: []
   };
 
   setModalVisible(visible) {
@@ -31,10 +32,39 @@ export class PickerCascader extends Component {
     //var p=this.state.originalData.find(this.findParentItem(item));
     console.log('search starts...');
     console.log(item.key);
-    let p = this.findByKey(this.state.originalData, item.key);
+    //let p = this.findByKey(this.state.originalData, item.key);
     //if(p!==undefined)
     console.log('search ends...');
-    console.log('value of p:' + p.text);
+    //console.log('value of p:' + p.text);
+    let lastHistory = this.state.history;
+
+    //let pIndex=this.state.history.findIndex(function(e) {return e.key == item.key});
+    //console.log(history);
+    console.log('hisotry length' + lastHistory.length);
+
+    let pIndex = this.findIndexByKey(lastHistory, item.key);
+
+    let pItem = lastHistory[pIndex];
+    console.log('selecteditems:' + pItem.selecteditems);
+    lastHistory.length = pIndex;
+    console.log('after length:' + lastHistory.length);
+    this.setState({
+      selecteditems: pItem.selecteditems,
+      data: pItem.data,
+      history: lastHistory
+    })
+  }
+
+  findIndexByKey(data, key) {
+    let index = 0;
+    console.log(data.length);
+    console.log(data.key);
+    for (index = 0; index < data.length; index++) {
+      if (data[index].key == key) {
+        return index;
+      }
+    }
+
 
   }
 
@@ -64,20 +94,20 @@ export class PickerCascader extends Component {
   //   }
   // }
 
- findByKey(data, key) {
-  let that = this;
+  findByKey(data, key) {
+    let that = this;
     function iter(a) {
-        if (a.key === key) {
-            result = a;
-            return true;
-        }
-        return Array.isArray(a.children) && a.children.some(iter);
+      if (a.key === key) {
+        result = a;
+        return true;
+      }
+      return Array.isArray(a.children) && a.children.some(iter);
     }
 
     var result;
     data.some(iter);
     return result;
-}
+  }
 
   //}
   _pressItem(item) {
@@ -89,16 +119,23 @@ export class PickerCascader extends Component {
     var lastselectedItems = this.state.selecteditems;
     var curNode = this.state.currentNode;
     var childData = [];
+    var lastHistory = this.state.history;
+    var h = { selecteditems: this.state.selecteditems.slice(), key: item.key, data: this.state.data };
+    //console.log('history:');
+    // console.log(h[0].selecteditems.length);
+    //console.log('end history');
     //console.log(lastState.length);
     // if (lastselectedItems.length === 0)
     // lastselectedItems = item.text;
     // else
     // lastselectedItems += '> ' + item.text;
     //onsole.log(item.children);
+    console.log('h selected items b :' + lastHistory);
     childData = item.children;
     lastselectedItems.push(item);
-
-    console.log(lastselectedItems);
+    lastHistory.push(h);
+    console.log('h selected items :' + lastHistory[lastHistory.length - 1].selecteditems.length);
+    //console.log(lastselectedItems);
 
     //var obj = new JSONObject(item.children.toString());
     //childData=obj.getJSONArray();
@@ -108,7 +145,21 @@ export class PickerCascader extends Component {
     //console.log(childData);
     this.setState({
       selecteditems: lastselectedItems,
-      data: childData
+      data: childData,
+      history: lastHistory
+    });
+  }
+
+  showPicker() {
+
+    this.setState({
+      modalVisible: false,
+      visible: true,
+      selecteditems: [],
+      originalData: this.props.data,
+      data: this.props.data,
+      currentNode: 0,
+      history: []
     });
   }
 
@@ -155,9 +206,7 @@ export class PickerCascader extends Component {
       <View style={{ marginTop: 22 }}>
         <Button
           title="Show Dialog"
-          onPress={() => {
-            this.setState({ visible: true });
-          }}
+          onPress={() => this.showPicker()}
         />
         <Dialog
           height={0.5}
