@@ -3,18 +3,18 @@ import {
   Modal, Text, TouchableHighlight, View, Alert,
   Button, SectionList, StyleSheet, FlatList
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
 import check from './check';
 
 export class PickerCascader extends Component {
   state = {
-    modalVisible: false,
     visible: false,
     selecteditems: [],
     originalData: this.props.data,
     data: this.props.data,
-    currentNode: 0,
-    history: []
+    history: [],
+    selecteditem:{ text:'select value'}
   };
 
   setModalVisible(visible) {
@@ -113,7 +113,10 @@ export class PickerCascader extends Component {
   _pressItem(item) {
     //console.log(item.key);
     if (item.children === undefined) {
-      this.setState({ visible: false });
+      this.setState({ 
+        visible: false ,
+        selecteditem:item
+       });
       return;
     }
     var lastselectedItems = this.state.selecteditems;
@@ -153,13 +156,12 @@ export class PickerCascader extends Component {
   showPicker() {
 
     this.setState({
-      modalVisible: false,
       visible: true,
       selecteditems: [],
       originalData: this.props.data,
       data: this.props.data,
-      currentNode: 0,
       history: []
+      
     });
   }
 
@@ -204,10 +206,17 @@ export class PickerCascader extends Component {
 
     return (
       <View style={{ marginTop: 22 }}>
-        <Button
-          title="Show Dialog"
-          onPress={() => this.showPicker()}
-        />
+        
+        <TouchableHighlight onPress={() => this.showPicker()}>
+        <View>
+          <Text>
+            {this.state.selecteditem.text}
+
+      
+          </Text>
+          <Ionicons name="md-arrow-dropdown" size={20} />
+        </View>
+      </TouchableHighlight>
         <Dialog
           height={0.5}
           width={0.75}
