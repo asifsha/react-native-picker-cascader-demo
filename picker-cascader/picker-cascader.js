@@ -14,7 +14,7 @@ export class PickerCascader extends Component {
     originalData: this.props.data,
     data: this.props.data,
     history: [],
-    selecteditem:{ text:'select value'}
+    selecteditem: { text: '' }
   };
 
   setModalVisible(visible) {
@@ -113,10 +113,10 @@ export class PickerCascader extends Component {
   _pressItem(item) {
     //console.log(item.key);
     if (item.children === undefined) {
-      this.setState({ 
-        visible: false ,
-        selecteditem:item
-       });
+      this.setState({
+        visible: false,
+        selecteditem: item
+      });
       return;
     }
     var lastselectedItems = this.state.selecteditems;
@@ -161,10 +161,15 @@ export class PickerCascader extends Component {
       originalData: this.props.data,
       data: this.props.data,
       history: []
-      
+
     });
   }
 
+  renderMore = () => {
+    return (
+      <Ionicons name="md-arrow-dropright" size={20} />
+    )
+  }
   renderSeparator = () => {
     return (
       <View
@@ -174,13 +179,11 @@ export class PickerCascader extends Component {
         }}
       >
         <View
-          style={{
-            height: 20,
-            width: 3,
 
-            backgroundColor: '#636870'
-          }}
-        />
+        >
+
+          <Ionicons name="md-arrow-dropright" size={20} />
+        </View>
       </View>
     )
   }
@@ -206,41 +209,49 @@ export class PickerCascader extends Component {
 
     return (
       <View style={{ marginTop: 22 }}>
-        
-        <TouchableHighlight onPress={() => this.showPicker()}>
-        <View>
-          <Text>
-            {this.state.selecteditem.text}
 
-      
-          </Text>
-          <Ionicons name="md-arrow-dropdown" size={20} />
-        </View>
-      </TouchableHighlight>
+        <TouchableHighlight onPress={() => this.showPicker()}>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+            <Text style={{ width: 180, borderWidth: 1, borderColor: '#636870' }}>
+              {this.state.selecteditem.text}
+
+
+            </Text>
+            <Ionicons name="md-arrow-dropdown" size={20} />
+          </View>
+        </TouchableHighlight>
         <Dialog
           height={0.5}
           width={0.75}
           visible={this.state.visible}
           onTouchOutside={() => {
-            this.setState({ visible: true });
+            this.setState({ visible: false });
+          }}
+          onHardwareBackPress={() => {
+            this.setState({ visible: false });
           }}
         >
+
           <DialogContent>
-            <FlatList
-              data={this.state.data}
+            <View style={{ height: 290 }}>
+              <FlatList
+                data={this.state.data}
 
-              renderItem={({ item }) => (
+                renderItem={({ item }) => (
 
-                <View>
-                  <TouchableHighlight onPress={() => this._pressItem(item)}>
-                    <View>
-                      <Text style={styles.item}>{item.text + (item.children !== undefined ? ' >' : '')}</Text>
-                    </View>
-                  </TouchableHighlight>
-                </View>
-              )
-              }
-            />
+                  <View>
+                    <TouchableHighlight onPress={() => this._pressItem(item)}>
+                      <View>
+                        <Text style={styles.item}>{item.text}  {(item.children !== undefined) && this.renderMore()} </Text>
+
+                      </View>
+                    </TouchableHighlight>
+                  </View>
+                )
+                }
+              />
+            </View>
+
             <View >
               <FlatList
                 data={this.state.selecteditems}
@@ -251,7 +262,10 @@ export class PickerCascader extends Component {
 
             </View>
 
+
+
           </DialogContent>
+
         </Dialog>
       </View>
     );
