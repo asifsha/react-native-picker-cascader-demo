@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  Modal, Text, TouchableHighlight, View, Alert,
+  Modal, Text, TextInput, TouchableHighlight, View, Alert,
   Button, SectionList, StyleSheet, FlatList
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,7 +14,8 @@ export class PickerCascader extends Component {
     originalData: this.props.data,
     data: this.props.data,
     history: [],
-    selecteditem: { text: '' }
+    selecteditem: { text: '' },
+    searchString:''
   };
 
   setModalVisible(visible) {
@@ -68,36 +69,12 @@ export class PickerCascader extends Component {
 
   }
 
-  //findKeyInDatasource()
-  //{
-
-  //let findDeep = f
-  // findDeep(data, key) {
-  //   let that = this;
-  //   return data.find(function(e) {
-  //     if(e.key == key) {
-  //       console.log(e)
-  //       return true;
-  //     }
-  //     else if(e.children) return that.findDeep(e.children, key)
-  //   })
-  // }
-
-  // findByKey(data, key) {
-  //   for (var i = 0; i < data.length; i++) {
-  //     console.log('data :'+data[i].key);
-  //     if (data[i].key == key) {
-  //       return data[i];
-  //     } else if (data[i].children && data[i].children.length) {
-  //       this.findByKey(data[i].children, key);
-  //     }
-  //   }
-  // }
+  
 
   findByKey(data, key) {
     let that = this;
     function iter(a) {
-      if (a.key === key) {
+      if (a.text === key) {
         result = a;
         return true;
       }
@@ -160,9 +137,18 @@ export class PickerCascader extends Component {
       selecteditems: [],
       originalData: this.props.data,
       data: this.props.data,
-      history: []
+      history: [],
+      searchString:''
 
     });
+  }
+
+  onSearch(searchString) {
+    this.setState({ searchString }) 
+    let p = this.findByKey(this.state.originalData, searchString);
+    console.log('searched item');
+    console.log(p);
+
   }
 
   renderMore = () => {
@@ -178,10 +164,7 @@ export class PickerCascader extends Component {
           paddingRight: 3
         }}
       >
-        <View
-
-        >
-
+        <View>
           <Ionicons name="md-arrow-dropright" size={20} />
         </View>
       </View>
@@ -202,26 +185,44 @@ export class PickerCascader extends Component {
     </View>
   )
 
+  renderChildList(items, index){
+    console.log('index' + index);
+    return <View>
+      <FlatList
+                    data={items}
+                    
+                    renderItem={({ item }) => (
+                      <View>
+                        <TouchableHighlight onPress={() => this._pressItem(item)}>
+                          <View>
+                            <Text style={styles.searchChildItem}> 
+                            {(item.children === undefined) && <Ionicons name="md-arrow-dropright" size={10} />} {item.text} </Text>
+                            <View style={{paddingLeft:10*index}}>
+                            {(item.children !== undefined) && this.renderChildList(item.children,index + 1)}                            
+                            
+                            </View>
+                          </View>
+                        </TouchableHighlight>
+                      </View>
+                    )
+                    }
+                  />
+    </View>;
+  }
+
   render() {
-    // console.log(this.state.data);
-
-
-
     return (
-      <View style={{ marginTop: 22 }}>
-
+      <View >
         <TouchableHighlight onPress={() => this.showPicker()}>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
             <Text style={{ width: 180, borderWidth: 1, borderColor: '#636870' }}>
               {this.state.selecteditem.text}
-
-
             </Text>
             <Ionicons name="md-arrow-dropdown" size={20} />
           </View>
         </TouchableHighlight>
         <Dialog
-          height={0.5}
+          height={0.6}
           width={0.75}
           visible={this.state.visible}
           onTouchOutside={() => {
@@ -233,35 +234,67 @@ export class PickerCascader extends Component {
         >
 
           <DialogContent>
-            <View style={{ height: 290 }}>
+            <View>
+              <View style={styles.searchSection}>
+                <Ionicons style={styles.searchIcon} name="md-search" size={20} color="#000" />
+                <TextInput
+                  style={styles.input}
+                  placeholder="search"
+                  onChangeText={(searchString) => { this.onSearch(searchString) }}
+                  underlineColorAndroid="transparent"
+                />
+              </View>
+            </View>
+
+            {this.state.searchString!=='' && 
+            <View>                           
               <FlatList
-                data={this.state.data}
-
-                renderItem={({ item }) => (
-
-                  <View>
-                    <TouchableHighlight onPress={() => this._pressItem(item)}>
+                    data={this.state.originalData}
+                    renderItem={({ item }) => (
                       <View>
-                        <Text style={styles.item}>{item.text}  {(item.children !== undefined) && this.renderMore()} </Text>
-
+                        <TouchableHighlight onPress={() => this._pressItem(item)}>
+                          <View>
+                            <Text style={styles.searchItem}>{item.text}</Text> 
+                            <View>{(item.children !== undefined) && this.renderChildList(item.children,1)}</View>
+                          </View>
+                        </TouchableHighlight>
                       </View>
-                    </TouchableHighlight>
-                  </View>
-                )
-                }
-              />
+                    )
+                    }
+                  />
+                                
             </View>
+          }
 
-            <View >
-              <FlatList
-                data={this.state.selecteditems}
-                horizontal={true}
-                renderItem={this._renderItem}
-                listkey={(item, index) => item.key}
-              />
+            {this.state.searchString === '' &&
+              <View>
+                <View style={{ height: 300 }}>
+                  <FlatList
+                    data={this.state.data}
+                    renderItem={({ item }) => (
+                      <View>
+                        <TouchableHighlight onPress={() => this._pressItem(item)}>
+                          <View>
+                            <Text style={styles.item}>{item.text}  {(item.children !== undefined) && this.renderMore()} </Text>
+                          </View>
+                        </TouchableHighlight>
+                      </View>
+                    )
+                    }
+                  />
+                </View>
 
-            </View>
+                <View >
+                  <FlatList
+                    data={this.state.selecteditems}
+                    horizontal={true}
+                    renderItem={this._renderItem}
+                    listkey={(item, index) => item.key}
+                  />
 
+                </View>
+
+              </View>}
 
 
           </DialogContent>
@@ -290,9 +323,38 @@ const styles = StyleSheet.create({
     fontSize: 18,
     height: 44,
   },
+  searchItem: {
+    
+    fontSize: 18,
+    height: 30,
+  },
+  searchChildItem: {
+    paddingLeft: 10,    
+    fontSize: 18,
+    height: 30,
+  },
   bottomContainer: {
     flex: 1,
     justifyContent: 'flex-end',
     paddingBottom: check.isAndroid ? 14 : 0
-  }
+  },
+  searchSection: {
+
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  searchIcon: {
+    padding: 10,
+  },
+  input: {
+    flex: 1,
+    paddingTop: 10,
+    paddingRight: 10,
+    paddingBottom: 10,
+    paddingLeft: 0,
+    backgroundColor: '#fff',
+    color: '#424242',
+  },
 })
