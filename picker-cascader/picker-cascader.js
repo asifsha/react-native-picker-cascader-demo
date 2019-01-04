@@ -8,15 +8,43 @@ import Dialog, { DialogContent } from 'react-native-popup-dialog';
 import check from './check';
 
 export class PickerCascader extends Component {
-  state = {
-    visible: false,
-    selecteditems: [],
-    originalData: this.props.data,
-    data: this.props.data,
-    history: [],
-    selecteditem: { text: '' },
-    searchString:''
-  };
+  constructor(props) {
+    super(props);
+    let transformData = [];
+
+    this.createSearchData(transformData, this.props.data, '', '');
+    console.log(transformData);
+    this.state = {
+      visible: false,
+      selecteditems: [],
+      originalData: this.props.data,
+      data: this.props.data,
+      history: [],
+      selecteditem: { text: '' },
+      searchString: '',
+      searchData: transformData,
+      filterData: []
+    };
+
+  }
+
+
+  createSearchData(searchData, data, key, text) {
+    console.log('in create search data');
+    //console.log(data);
+    let index = 0;
+    for (index = 0; index < data.length; index++) {
+      let d = data[index];
+      if (d.children !== undefined)
+        this.createSearchData(searchData, d.children, key + d.key + '~', text + d.text + ' | ');
+      else {
+        let k = key + d.key;
+        let t = text + d.text;
+        searchData.push({ key: k, text: t })
+      }
+    }
+  }
+
 
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
@@ -69,7 +97,7 @@ export class PickerCascader extends Component {
 
   }
 
-  
+
 
   findByKey(data, key) {
     let that = this;
@@ -96,8 +124,7 @@ export class PickerCascader extends Component {
       });
       return;
     }
-    var lastselectedItems = this.state.selecteditems;
-    var curNode = this.state.currentNode;
+    var lastselectedItems = this.state.selecteditems;    
     var childData = [];
     var lastHistory = this.state.history;
     var h = { selecteditems: this.state.selecteditems.slice(), key: item.key, data: this.state.data };
@@ -138,16 +165,20 @@ export class PickerCascader extends Component {
       originalData: this.props.data,
       data: this.props.data,
       history: [],
-      searchString:''
+      searchString: ''
+
 
     });
   }
 
   onSearch(searchString) {
-    this.setState({ searchString }) 
-    let p = this.findByKey(this.state.originalData, searchString);
-    console.log('searched item');
-    console.log(p);
+    let sd = this.state.searchData;
+    sd = sd.filter((arr) => { return arr.text.includes(searchString); });
+
+    this.setState({
+      searchString: searchString,
+      filterData: sd
+    })
 
   }
 
@@ -185,30 +216,29 @@ export class PickerCascader extends Component {
     </View>
   )
 
-  renderChildList(items, index){
-    console.log('index' + index);
-    return <View>
-      <FlatList
-                    data={items}
-                    
-                    renderItem={({ item }) => (
-                      <View>
-                        <TouchableHighlight onPress={() => this._pressItem(item)}>
-                          <View>
-                            <Text style={styles.searchChildItem}> 
-                            {(item.children === undefined) && <Ionicons name="md-arrow-dropright" size={10} />} {item.text} </Text>
-                            <View style={{paddingLeft:10*index}}>
-                            {(item.children !== undefined) && this.renderChildList(item.children,index + 1)}                            
-                            
-                            </View>
-                          </View>
-                        </TouchableHighlight>
-                      </View>
-                    )
-                    }
-                  />
-    </View>;
-  }
+  // renderChildList(items, index, pitem) {    
+  //   return <View>
+  //     <FlatList
+  //       data={items}
+
+  //       renderItem={({ item }) => (
+  //         <View>
+  //           <TouchableHighlight onPress={() => this._pressItem(item)}>
+  //             <View>
+  //               <Text style={styles.searchChildItem}>
+  //                 {(item.children === undefined) && <Ionicons name="md-arrow-dropright" size={10} />} {item.text} </Text>
+  //               <View style={{ paddingLeft: 10 * index }}>
+  //                 {(item.children !== undefined) && this.renderChildList(item.children, index + 1, item)}
+
+  //               </View>
+  //             </View>
+  //           </TouchableHighlight>
+  //         </View>
+  //       )
+  //       }
+  //     />
+  //   </View>;
+  // }
 
   render() {
     return (
@@ -246,25 +276,24 @@ export class PickerCascader extends Component {
               </View>
             </View>
 
-            {this.state.searchString!=='' && 
-            <View>                           
-              <FlatList
-                    data={this.state.originalData}
-                    renderItem={({ item }) => (
-                      <View>
-                        <TouchableHighlight onPress={() => this._pressItem(item)}>
-                          <View>
-                            <Text style={styles.searchItem}>{item.text}</Text> 
-                            <View>{(item.children !== undefined) && this.renderChildList(item.children,1)}</View>
-                          </View>
-                        </TouchableHighlight>
-                      </View>
-                    )
-                    }
-                  />
-                                
-            </View>
-          }
+            {this.state.searchString !== '' &&
+              <View>
+                <FlatList
+                  data={this.state.filterData}
+                  renderItem={({ item }) => (
+                    <View>
+                      <TouchableHighlight onPress={() => this._pressItem(item)}>
+                        <View>
+                          <Text style={styles.item}>{item.text}</Text>
+                        </View>
+                      </TouchableHighlight>
+                    </View>
+                  )
+                  }
+                />
+
+              </View>
+            }
 
             {this.state.searchString === '' &&
               <View>
@@ -324,12 +353,12 @@ const styles = StyleSheet.create({
     height: 44,
   },
   searchItem: {
-    
+
     fontSize: 18,
     height: 30,
   },
   searchChildItem: {
-    paddingLeft: 10,    
+    paddingLeft: 10,
     fontSize: 18,
     height: 30,
   },
