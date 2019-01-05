@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Platform } from 'react-native';
+
+
 import {
-  Modal, Text, TextInput, TouchableHighlight, View, Alert,
-  Button, SectionList, StyleSheet, FlatList
+   Text, TextInput, TouchableHighlight, View, ScrollView,
+   StyleSheet, FlatList
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
@@ -13,7 +17,8 @@ export class PickerCascader extends Component {
     let transformData = [];
 
     this.createSearchData(transformData, this.props.data, '', '');
-    console.log(transformData);
+   console.log(JSON.stringify(this.props.data));
+   console.log(JSON.parse(JSON.stringify(this.props.data)));
     this.state = {
       visible: false,
       selecteditems: [],
@@ -28,10 +33,11 @@ export class PickerCascader extends Component {
 
   }
 
-
+  isAndroid()
+  {
+    return Platform.OS === 'android';
+  }
   createSearchData(searchData, data, key, text) {
-    console.log('in create search data');
-    //console.log(data);
     let index = 0;
     for (index = 0; index < data.length; index++) {
       let d = data[index];
@@ -46,115 +52,111 @@ export class PickerCascader extends Component {
   }
 
 
-  setModalVisible(visible) {
-    this.setState({ modalVisible: visible });
-  }
+  // setModalVisible(visible) {
+  //   this.setState({ modalVisible: visible });
+  // }
 
-  findParentItem(item) {
-    return function (data) {
-      console.log('data: ' + data.key);
-      console.log('key: ' + item.key);
-      return data.key == item.key;
-    }
-  }
+  // findParentItem(item) {
+  //   return function (data) {
+  //     console.log('data: ' + data.key);
+  //     console.log('key: ' + item.key);
+  //     return data.key == item.key;
+  //   }
+  // }
   _pressParentItem(item) {
-    //var p=this.state.originalData.find(this.findParentItem(item));
-    console.log('search starts...');
-    console.log(item.key);
-    //let p = this.findByKey(this.state.originalData, item.key);
-    //if(p!==undefined)
-    console.log('search ends...');
-    //console.log('value of p:' + p.text);
     let lastHistory = this.state.history;
-
-    //let pIndex=this.state.history.findIndex(function(e) {return e.key == item.key});
-    //console.log(history);
-    console.log('hisotry length' + lastHistory.length);
 
     let pIndex = this.findIndexByKey(lastHistory, item.key);
 
     let pItem = lastHistory[pIndex];
-    console.log('selecteditems:' + pItem.selecteditems);
+
     lastHistory.length = pIndex;
-    console.log('after length:' + lastHistory.length);
+
     this.setState({
       selecteditems: pItem.selecteditems,
       data: pItem.data,
       history: lastHistory
-    })
+    });
+
+
   }
 
   findIndexByKey(data, key) {
     let index = 0;
-    console.log(data.length);
-    console.log(data.key);
     for (index = 0; index < data.length; index++) {
       if (data[index].key == key) {
         return index;
       }
     }
 
-
   }
 
+  // findByKey(data, key) {
+  //   function iter(a) {
+  //     if (a.text === key) {
+  //       result = a;
+  //       return true;
+  //     }
+  //     return Array.isArray(a.children) && a.children.some(iter);
+  //   }
 
+  //   var result;
+  //   data.some(iter);
+  //   return result;
+  // }
 
-  findByKey(data, key) {
-    let that = this;
-    function iter(a) {
-      if (a.text === key) {
-        result = a;
-        return true;
-      }
-      return Array.isArray(a.children) && a.children.some(iter);
+  pressSearchItem(item) {
+    let si = { text: '', key: '' };
+    si.text = item.text;
+    si.key = item.key;
+    this.setState({
+      visible: false,
+      selecteditem: si
+    });
+    if (this.props.onValueChange != null) {
+      this.props.onValueChange(si);
     }
-
-    var result;
-    data.some(iter);
-    return result;
   }
 
-  //}
   _pressItem(item) {
-    //console.log(item.key);
     if (item.children === undefined) {
+      let index = 0;
+      let t = '', k = '';
+      console.log(this.state.selecteditems.length);
+      for (index = 0; index < this.state.selecteditems.length; index++) {
+        t = t + this.state.selecteditems[index].text + ' | ';
+        k = k + this.state.selecteditems[index].key + '~';
+      }
+      let si = { text: '', key: '' };
+      si.text = t + item.text;
+      si.key = k + item.key;
+      console.log(si);
       this.setState({
         visible: false,
-        selecteditem: item
+        selecteditem: si
       });
+      if (this.props.onValueChange != null) {
+        this.props.onValueChange(si);
+      }
       return;
     }
-    var lastselectedItems = this.state.selecteditems;    
+
+    var lastselectedItems = this.state.selecteditems;
     var childData = [];
     var lastHistory = this.state.history;
     var h = { selecteditems: this.state.selecteditems.slice(), key: item.key, data: this.state.data };
-    //console.log('history:');
-    // console.log(h[0].selecteditems.length);
-    //console.log('end history');
-    //console.log(lastState.length);
-    // if (lastselectedItems.length === 0)
-    // lastselectedItems = item.text;
-    // else
-    // lastselectedItems += '> ' + item.text;
-    //onsole.log(item.children);
-    console.log('h selected items b :' + lastHistory);
+
     childData = item.children;
     lastselectedItems.push(item);
     lastHistory.push(h);
-    console.log('h selected items :' + lastHistory[lastHistory.length - 1].selecteditems.length);
-    //console.log(lastselectedItems);
 
-    //var obj = new JSONObject(item.children.toString());
-    //childData=obj.getJSONArray();
-    //if(curNode===0)
-    //data=this.state.originalData.
-
-    //console.log(childData);
     this.setState({
       selecteditems: lastselectedItems,
       data: childData,
       history: lastHistory
     });
+    console.log(item);
+    console.log('abc');
   }
 
   showPicker() {
@@ -165,7 +167,8 @@ export class PickerCascader extends Component {
       originalData: this.props.data,
       data: this.props.data,
       history: [],
-      searchString: ''
+      searchString: '',
+      filterData: []
 
 
     });
@@ -173,7 +176,7 @@ export class PickerCascader extends Component {
 
   onSearch(searchString) {
     let sd = this.state.searchData;
-    sd = sd.filter((arr) => { return arr.text.includes(searchString); });
+    sd = sd.filter((arr) => { return arr.text.toLowerCase().includes(searchString.toLowerCase()); });
 
     this.setState({
       searchString: searchString,
@@ -216,36 +219,18 @@ export class PickerCascader extends Component {
     </View>
   )
 
-  // renderChildList(items, index, pitem) {    
-  //   return <View>
-  //     <FlatList
-  //       data={items}
 
-  //       renderItem={({ item }) => (
-  //         <View>
-  //           <TouchableHighlight onPress={() => this._pressItem(item)}>
-  //             <View>
-  //               <Text style={styles.searchChildItem}>
-  //                 {(item.children === undefined) && <Ionicons name="md-arrow-dropright" size={10} />} {item.text} </Text>
-  //               <View style={{ paddingLeft: 10 * index }}>
-  //                 {(item.children !== undefined) && this.renderChildList(item.children, index + 1, item)}
-
-  //               </View>
-  //             </View>
-  //           </TouchableHighlight>
-  //         </View>
-  //       )
-  //       }
-  //     />
-  //   </View>;
-  // }
 
   render() {
+    console.log('OS');
+    console.log( Platform.OS === 'android'? 1: 0);
+    console.log(Platform.OS);
+    //console.log(DeviceInfo.)
     return (
       <View >
         <TouchableHighlight onPress={() => this.showPicker()}>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-            <Text style={{ width: 180, borderWidth: 1, borderColor: '#636870' }}>
+            <Text style={{ width: 180 }}>
               {this.state.selecteditem.text}
             </Text>
             <Ionicons name="md-arrow-dropdown" size={20} />
@@ -282,10 +267,10 @@ export class PickerCascader extends Component {
                   data={this.state.filterData}
                   renderItem={({ item }) => (
                     <View>
-                      <TouchableHighlight onPress={() => this._pressItem(item)}>
-                        <View>
+                      <TouchableHighlight onPress={() => this.pressSearchItem(item)}>
+                        <ScrollView horizontal={true}>
                           <Text style={styles.item}>{item.text}</Text>
-                        </View>
+                        </ScrollView>
                       </TouchableHighlight>
                     </View>
                   )
@@ -297,15 +282,15 @@ export class PickerCascader extends Component {
 
             {this.state.searchString === '' &&
               <View>
-                <View style={{ height: 300 }}>
+                <View style={{ height: Platform.OS === 'android' ? '87%' : '92%' }}>
                   <FlatList
                     data={this.state.data}
                     renderItem={({ item }) => (
                       <View>
                         <TouchableHighlight onPress={() => this._pressItem(item)}>
-                          <View>
+                          <ScrollView horizontal={true}>
                             <Text style={styles.item}>{item.text}  {(item.children !== undefined) && this.renderMore()} </Text>
-                          </View>
+                          </ScrollView>
                         </TouchableHighlight>
                       </View>
                     )
@@ -333,6 +318,19 @@ export class PickerCascader extends Component {
     );
   }
 }
+
+
+PickerCascader.propTypes = {
+  data: PropTypes.array,
+  onValueChange: PropTypes.func
+}
+
+PickerCascader.defaultProps = {
+
+  data: [],
+  onValueChange: () => { }
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -365,7 +363,7 @@ const styles = StyleSheet.create({
   bottomContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: check.isAndroid ? 14 : 0
+    paddingBottom:  Platform.OS === 'android' ? 14 : 0
   },
   searchSection: {
 

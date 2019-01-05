@@ -1,4 +1,4 @@
-import { Platform } from 'react-native'
+import { Platform } from 'react-native';
 const check = {
   isAndroid: () => {
     return Platform.OS === 'android'
