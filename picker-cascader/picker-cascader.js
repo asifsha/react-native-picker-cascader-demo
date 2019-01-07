@@ -5,11 +5,11 @@ import { Platform } from 'react-native';
 
 import {
    Text, TextInput, TouchableHighlight, View, ScrollView,
-   StyleSheet, FlatList
+   StyleSheet, FlatList, TouchableWithoutFeedback
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
-import check from './check';
+
 
 export class PickerCascader extends Component {
   constructor(props) {
@@ -17,8 +17,7 @@ export class PickerCascader extends Component {
     let transformData = [];
 
     this.createSearchData(transformData, this.props.data, '', '');
-   console.log(JSON.stringify(this.props.data));
-   console.log(JSON.parse(JSON.stringify(this.props.data)));
+   
     this.state = {
       visible: false,
       selecteditems: [],
@@ -51,18 +50,7 @@ export class PickerCascader extends Component {
     }
   }
 
-
-  // setModalVisible(visible) {
-  //   this.setState({ modalVisible: visible });
-  // }
-
-  // findParentItem(item) {
-  //   return function (data) {
-  //     console.log('data: ' + data.key);
-  //     console.log('key: ' + item.key);
-  //     return data.key == item.key;
-  //   }
-  // }
+  
   _pressParentItem(item) {
     let lastHistory = this.state.history;
 
@@ -267,11 +255,11 @@ export class PickerCascader extends Component {
                   data={this.state.filterData}
                   renderItem={({ item }) => (
                     <View>
-                      <TouchableHighlight onPress={() => this.pressSearchItem(item)}>
+                      <TouchableWithoutFeedback onPress={() => this.pressSearchItem(item)}>
                         <ScrollView horizontal={true}>
                           <Text style={styles.item}>{item.text}</Text>
                         </ScrollView>
-                      </TouchableHighlight>
+                      </TouchableWithoutFeedback>
                     </View>
                   )
                   }
