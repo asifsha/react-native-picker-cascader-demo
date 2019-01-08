@@ -92,7 +92,7 @@ export class PickerCascader extends Component {
     if (item.children === undefined) {
       let index = 0;
       let t = '', k = '';
-      console.log(this.state.selecteditems.length);
+      
       for (index = 0; index < this.state.selecteditems.length; index++) {
         t = t + this.state.selecteditems[index].text + ' | ';
         k = k + this.state.selecteditems[index].key + '~';
@@ -100,7 +100,7 @@ export class PickerCascader extends Component {
       let si = { text: '', key: '' };
       si.text = t + item.text;
       si.key = k + item.key;
-      console.log(si);
+      
       this.setState({
         visible: false,
         selecteditem: si
@@ -125,8 +125,7 @@ export class PickerCascader extends Component {
       data: childData,
       history: lastHistory
     });
-    console.log(item);
-    console.log('abc');
+    
   }
 
   showPicker() {
