@@ -58,7 +58,12 @@ export default class App extends React.Component {
                 children: [{ key: '211', text: 'John' }],
                 children: [{ key: '2111', text: 'Jillian',
                 children: [{ key: '210', text: 'John', children: [{ key: '212', text: 'Rest',
-                children: [{ key: '212', text: 'Test' }] 
+                children: [{ key: '216', text: 'Test' ,children: [{ key: '213', text: 'Next',
+                children: [{ key: '214', text: 'West',children: [{ key: '215', text: 'Rich',
+              }]
+              }]
+              }]
+              }] 
               
               }] }],               
               }]

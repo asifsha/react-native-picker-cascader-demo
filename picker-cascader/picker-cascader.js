@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Platform } from 'react-native';
-
-
 import {
-   Text, TextInput, TouchableHighlight, View, ScrollView,
-   StyleSheet, FlatList, TouchableWithoutFeedback
+  Text, TextInput, TouchableHighlight, View, ScrollView,
+  StyleSheet, FlatList, TouchableWithoutFeedback
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
@@ -17,7 +15,7 @@ export class PickerCascader extends Component {
     let transformData = [];
 
     this.createSearchData(transformData, this.props.data, '', '');
-   
+
     this.state = {
       visible: false,
       selecteditems: [],
@@ -32,10 +30,6 @@ export class PickerCascader extends Component {
 
   }
 
-  isAndroid()
-  {
-    return Platform.OS === 'android';
-  }
   createSearchData(searchData, data, key, text) {
     let index = 0;
     for (index = 0; index < data.length; index++) {
@@ -50,8 +44,8 @@ export class PickerCascader extends Component {
     }
   }
 
-  
-  _pressParentItem(item) {
+
+  pressParentItem(item) {
     let lastHistory = this.state.history;
 
     let pIndex = this.findIndexByKey(lastHistory, item.key);
@@ -79,19 +73,7 @@ export class PickerCascader extends Component {
 
   }
 
-  // findByKey(data, key) {
-  //   function iter(a) {
-  //     if (a.text === key) {
-  //       result = a;
-  //       return true;
-  //     }
-  //     return Array.isArray(a.children) && a.children.some(iter);
-  //   }
 
-  //   var result;
-  //   data.some(iter);
-  //   return result;
-  // }
 
   pressSearchItem(item) {
     let si = { text: '', key: '' };
@@ -106,7 +88,7 @@ export class PickerCascader extends Component {
     }
   }
 
-  _pressItem(item) {
+  pressItem(item) {
     if (item.children === undefined) {
       let index = 0;
       let t = '', k = '';
@@ -193,9 +175,9 @@ export class PickerCascader extends Component {
     )
   }
 
-  _renderItem = ({ item, index }) => (
+  renderItem = ({ item, index }) => (
     <View style={{ flexDirection: 'row' }}>
-      <TouchableHighlight onPress={() => this._pressParentItem(item)}>
+      <TouchableHighlight onPress={() => this.pressParentItem(item)}>
         <View>
           <Text>
             {item.text}
@@ -210,10 +192,6 @@ export class PickerCascader extends Component {
 
 
   render() {
-    console.log('OS');
-    console.log( Platform.OS === 'android'? 1: 0);
-    console.log(Platform.OS);
-    //console.log(DeviceInfo.)
     return (
       <View >
         <TouchableHighlight onPress={() => this.showPicker()}>
@@ -275,7 +253,7 @@ export class PickerCascader extends Component {
                     data={this.state.data}
                     renderItem={({ item }) => (
                       <View>
-                        <TouchableHighlight onPress={() => this._pressItem(item)}>
+                        <TouchableHighlight onPress={() => this.pressItem(item)}>
                           <ScrollView horizontal={true}>
                             <Text style={styles.item}>{item.text}  {(item.children !== undefined) && this.renderMore()} </Text>
                           </ScrollView>
@@ -286,15 +264,15 @@ export class PickerCascader extends Component {
                   />
                 </View>
 
-                <View >
+                <ScrollView horizontal={true}>
                   <FlatList
                     data={this.state.selecteditems}
                     horizontal={true}
-                    renderItem={this._renderItem}
+                    renderItem={this.renderItem}
                     listkey={(item, index) => item.key}
                   />
 
-                </View>
+                </ScrollView>
 
               </View>}
 
@@ -351,7 +329,7 @@ const styles = StyleSheet.create({
   bottomContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom:  Platform.OS === 'android' ? 14 : 0
+    paddingBottom: Platform.OS === 'android' ? 14 : 0
   },
   searchSection: {
 
